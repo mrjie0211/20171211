@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="booksystem.mapper.booksystemMapper" >
+  <!-- 登陆方法 -->
+  <!-- id -->				<!-- 结果输出到实体userinfo -->			<!-- 参数输入类型 -->
+  <select id="checkUser" resultType="booksystem.model.admininfo"  parameterType="booksystem.model.admininfo">
+  	select  
+  	status  
+  	from administrator
+  	where Code = #{Code,jdbcType=VARCHAR}
+    and Pwd= #{Pwd,jdbcType=VARCHAR}
+  </select>
+  <!-- 用户信息总览 -->
+<select id="admin_list" resultType="booksystem.model.admininfo" parameterType="booksystem.model.admininfo">
+  	select
+  	*
+  	from administrator
+  	where status>-1    
+  		 <if test=" title.toString()=='2'.toString()">
+  			and Code like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='3'.toString()">
+  			and Name like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='4'.toString()">
+  			and bldepartment like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='5'.toString()">
+  			and juese like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		limit #{startPage,jdbcType=INTEGER} , #{pageSize,jdbcType=VARCHAR}
+  </select>
+<!--用户信息具体内容 -->
+  <select id="getAdmin_Detail" resultType="booksystem.model.admininfo" parameterType="booksystem.model.admininfo">
+ 	select 
+    *
+    from administrator
+    where Code = #{Code,jdbcType=VARCHAR}
+ </select>
+<!-- 获取用户权限 -->
+<select id="getUserpower" resultType="string" parameterType="booksystem.model.admininfo">
+	select b.JsPower from administrator a,juese b where a.juese=b.JsCode and a.Code=#{Code,jdbcType=VARCHAR}
+</select>
+<!-- 获取权限对应的内容 -->
+<select id="getmenulist" resultType="booksystem.model.menuinfo" parameterType="java.lang.String" statementType="STATEMENT">
+	select maddress from menuinfo where mCode in ${_parameter}<!-- 度娘说如果传入参数只有一个String类型的字符串，则该字符用_parameter来代替 -->
+</select>
+<!-- 用户假删除 -->
+<update  id="admin_changestatus"  parameterType="booksystem.model.admininfo">
+update administrator
+    <set >
+       status =#{status,jdbcType=INTEGER},
+    </set>
+    where Code = #{Code,jdbcType=VARCHAR}
+</update>
+<!-- 用户临时表插入 -->
+<insert id="adminlinshi_insert" parameterType="booksystem.model.admininfo">
+	 insert into administrator_linshi
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+       Code,
+       Pwd,
+       Name,
+       bldepartment,
+       education,
+       profession,
+       adress,
+       age,
+       juese,
+       email,
+       status,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{Code,jdbcType=VARCHAR},
+        #{Pwd,jdbcType=VARCHAR},
+        #{Name,jdbcType=VARCHAR},
+        #{bldepartment,jdbcType=VARCHAR},
+        #{education,jdbcType=VARCHAR},
+        #{profession,jdbcType=VARCHAR},
+        #{adress,jdbcType=VARCHAR},
+        #{age,jdbcType=INTEGER},
+        #{juese,jdbcType=VARCHAR},
+        #{email,jdbcType=VARCHAR},
+        #{status,jdbcType=INTEGER},
+    </trim>
+</insert>
+<!-- 用户表添加新用户 -->
+<insert id="admin_add" parameterType="booksystem.model.admininfo">
+	 insert into administrator
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+       Code,
+       Pwd,
+       Name,
+       bldepartment,
+       education,
+       profession,
+       adress,
+       age,
+       juese,
+       email,
+       status,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{Code,jdbcType=VARCHAR},
+        #{Pwd,jdbcType=VARCHAR},
+        #{Name,jdbcType=VARCHAR},
+        #{bldepartment,jdbcType=VARCHAR},
+        #{education,jdbcType=VARCHAR},
+        #{profession,jdbcType=VARCHAR},
+        #{adress,jdbcType=VARCHAR},
+        #{age,jdbcType=INTEGER},
+        #{juese,jdbcType=VARCHAR},
+        #{email,jdbcType=VARCHAR},
+        #{status,jdbcType=INTEGER},
+    </trim>
+</insert>
+<!-- 更新用户数据 -->
+<update id="admin_update"  parameterType="booksystem.model.admininfo">
+ update administrator
+    <set >
+       Pwd=#{Pwd,jdbcType=VARCHAR},
+       Name=#{Name,jdbcType=VARCHAR},
+       bldepartment=#{bldepartment,jdbcType=VARCHAR},
+       education=#{education,jdbcType=VARCHAR},
+       profession=#{profession,jdbcType=VARCHAR},
+       adress=#{adress,jdbcType=VARCHAR},
+       age=#{age,jdbcType=INTEGER},
+       juese=#{juese,jdbcType=VARCHAR},
+       email=#{email,jdbcType=VARCHAR},
+       status=#{ status,jdbcType=INTEGER},
+    </set>
+    where Code = #{Code,jdbcType=VARCHAR}
+ </update>
+  <!-- 部门信息总览 -->
+<select id="department_list" resultType="booksystem.model.departmentinfo" parameterType="booksystem.model.departmentinfo">
+  	select
+  	*
+  	from departmentinfo
+  	where status>-1    
+  		 <if test=" title.toString()=='2'.toString()">
+  			and DpCode like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='3'.toString()">
+  			and DpName like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='4'.toString()">
+  			and DpPhone like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		limit #{startPage,jdbcType=INTEGER} , #{pageSize,jdbcType=VARCHAR}
+  </select>
+  <!-- 部门信息用于用户添加时显示类别 -->
+ <select id="department_Lb" resultType="booksystem.model.departmentinfo">
+  	select
+  	*
+  	from departmentinfo
+  	where status>-1    
+  </select>
+  <!-- 部门假删除 -->
+<update  id="department_changestatus"  parameterType="booksystem.model.departmentinfo">
+update departmentinfo
+    <set >
+       status =#{status,jdbcType=INTEGER},
+    </set>
+    where DpCode = #{DpCode,jdbcType=VARCHAR}
+</update>
+<!-- 部门表添加新部门 -->
+<insert id="department_add" parameterType="booksystem.model.departmentinfo">
+	 insert into departmentinfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+       DpCode,
+       DpName,
+       DpPhone,
+       status,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{DpCode,jdbcType=VARCHAR},
+        #{DpName,jdbcType=VARCHAR},
+        #{DpPhone,jdbcType=VARCHAR},
+        #{status,jdbcType=INTEGER},
+    </trim>
+</insert>
+<!--部门信息具体内容 -->
+  <select id="getDepartment_Detail" resultType="booksystem.model.departmentinfo" parameterType="booksystem.model.departmentinfo">
+ 	select 
+    *
+    from departmentinfo
+    where DpCode = #{DpCode,jdbcType=VARCHAR}
+ </select>
+ <!-- 部门临时表插入 -->
+<insert id="departmentlinshi_insert" parameterType="booksystem.model.departmentinfo">
+	 insert into departmentinfo_linshi
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+       DpCode,
+       DpName,
+       DpPhone,
+       status,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{DpCode,jdbcType=VARCHAR},
+        #{DpName,jdbcType=VARCHAR},
+        #{DpPhone,jdbcType=VARCHAR},
+        #{status,jdbcType=INTEGER},
+    </trim>
+</insert>
+<!-- 更新部门数据 -->
+<update id="department_update"  parameterType="booksystem.model.departmentinfo">
+ update departmentinfo
+    <set >
+       DpName=#{DpName,jdbcType=VARCHAR},
+       DpPhone=#{DpPhone,jdbcType=VARCHAR},
+       status=#{status,jdbcType=INTEGER},
+    </set>
+    where DpCode = #{DpCode,jdbcType=VARCHAR}
+ </update>
+ <!-- 角色信息总览 -->
+<select id="juese_list" resultType="booksystem.model.jueseinfo" parameterType="booksystem.model.jueseinfo">
+  	select
+  	*
+  	from juese
+  	where status>-1    
+  		 <if test=" title.toString()=='2'.toString()">
+  			and JsCode like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='3'.toString()">
+  			and JsName like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='4'.toString()">
+  			and JsPower like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		limit #{startPage,jdbcType=INTEGER} , #{pageSize,jdbcType=VARCHAR}
+  </select>
+ <!-- 角色信息用于用户添加时显示类别 -->
+ <select id="juese_Lb" resultType="booksystem.model.jueseinfo">
+  	select
+  	*
+  	from juese
+  	where status>-1    
+  </select>
+    <!-- 角色假删除 -->
+<update  id="juese_changestatus"  parameterType="booksystem.model.jueseinfo">
+update juese
+    <set >
+       status =#{status,jdbcType=INTEGER},
+    </set>
+    where JsCode = #{JsCode,jdbcType=VARCHAR}
+</update>
+<!-- 角色表添加新角色 -->
+<insert id="juese_add" parameterType="booksystem.model.jueseinfo">
+	 insert into juese
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+       JsCode,
+       JsName,
+       JsPower,
+       status,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{JsCode,jdbcType=VARCHAR},
+        #{JsName,jdbcType=VARCHAR},
+        #{JsPower,jdbcType=VARCHAR},
+        #{status,jdbcType=INTEGER},
+    </trim>
+</insert>
+<!--角色信息具体内容 -->
+  <select id="getJuese_Detail" resultType="booksystem.model.jueseinfo" parameterType="booksystem.model.jueseinfo">
+ 	select 
+    *
+    from juese
+    where JsCode = #{JsCode,jdbcType=VARCHAR}
+ </select>
+ <!-- 角色临时表插入 -->
+<insert id="jueselinshi_insert" parameterType="booksystem.model.jueseinfo">
+	 insert into juese_linshi
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+       JsCode,
+       JsName,
+       JsPower,
+       status,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{JsCode,jdbcType=VARCHAR},
+        #{JsName,jdbcType=VARCHAR},
+        #{JsPower,jdbcType=VARCHAR},
+        #{status,jdbcType=INTEGER},
+    </trim>
+</insert>
+<!-- 更新角色数据 -->
+<update id="juese_update"  parameterType="booksystem.model.jueseinfo">
+ update juese
+    <set >
+       JsName=#{JsName,jdbcType=VARCHAR},
+       JsPower=#{JsPower,jdbcType=VARCHAR},
+       status=#{status,jdbcType=INTEGER},
+    </set>
+    where JsCode = #{JsCode,jdbcType=VARCHAR}
+ </update>
+  <!-- 图书信息总览 -->
+  <select id="book_list" resultType="booksystem.model.bookinfo" parameterType="booksystem.model.bookinfo">
+  	select
+  	*
+  	from bookinfo
+  	where 1=1    
+  		 <if test=" title.toString()=='2'.toString()">
+  			and BookName like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='3'.toString()">
+  			and Author like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='4'.toString()">
+  			and Cbs like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		limit #{startPage,jdbcType=INTEGER} , #{pageSize,jdbcType=VARCHAR}
+  		
+  </select>
+  <!--图书具体内容 -->
+  <select id="getBook_Detail" resultType="booksystem.model.bookinfo" parameterType="booksystem.model.bookinfo">
+ 	select 
+    *
+    from bookinfo
+    where BookCode = #{BookCode,jdbcType=VARCHAR}
+ </select>
+ <!-- 保存修改的图书内容 -->
+ <update id="book_save_edit"  parameterType="booksystem.model.bookinfo">
+ update bookinfo
+    <set >
+      <if test="BookName != null" >
+        BookName = #{BookName,jdbcType=VARCHAR},
+      </if>
+      <if test="Booktpip != null" >
+        Booktpip = #{Booktpip,jdbcType=VARCHAR},
+      </if>
+      <if test="Author != null" >
+        Author = #{Author,jdbcType=VARCHAR},
+      </if>
+      <if test="Cbs != null" >
+        Cbs = #{Cbs,jdbcType=VARCHAR},
+      </if>
+      <if test="Position != null" >
+        Position = #{Position,jdbcType=VARCHAR},
+      </if>
+      <if test="Lb != null" >
+        Lb = #{Lb,jdbcType=VARCHAR},
+      </if>
+      <if test="Isbn != null" >
+        Isbn = #{Isbn,jdbcType=VARCHAR},
+      </if>
+      	Content= #{Content,jdbcType=VARCHAR},
+    </set>
+    where BookCode = #{BookCode,jdbcType=VARCHAR}
+ </update>
+ <!-- 查询图书类别 -->
+ <select id="getBook_LB" resultType="booksystem.model.lbinfo" >
+ 	select 
+    *
+    from lbinfo
+ </select>
+ <!-- 添加图书 -->
+ <insert id="addBook" parameterType="booksystem.model.bookinfo">
+ insert into bookinfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      
+        BookCode,
+      
+        BookName,
+      
+        Booktpip,
+   
+        Author,
+      
+        Cbs,
+      
+        Position,
+      
+        Lb,
+      
+        Isbn,
+      <if test="Content!= null" >
+        Content,
+      </if>
+      BookStatus,
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      
+        #{BookCode,jdbcType=VARCHAR},
+      
+      
+        #{BookName,jdbcType=VARCHAR},
+      
+      
+        #{Booktpip,jdbcType=VARCHAR},
+      
+      
+        #{Author,jdbcType=VARCHAR},
+      
+      
+        #{Cbs,jdbcType=VARCHAR},
+      
+      
+        #{Position,jdbcType=VARCHAR},
+      
+        #{Lb,jdbcType=VARCHAR},
+      
+        #{Isbn,jdbcType=VARCHAR},
+      
+      <if test="Content != null" >
+        #{Content,jdbcType=VARCHAR},
+      </if>
+      0,
+    </trim>
+</insert>
+
+<!-- 审核表插入 -->
+<insert id="assessor_add" parameterType="booksystem.model.assessorinfo">
+	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+	 insert into assessor
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        coperator,
+        ctable,
+        ctable_key,
+        ctable_key_value,
+        ctype,
+        ccontent,
+        ctime,
+        cispass,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{coperator,jdbcType=VARCHAR},
+        #{ctable,jdbcType=VARCHAR},
+        #{ctable_key,jdbcType=VARCHAR},
+        #{ctable_key_value,jdbcType=VARCHAR},
+        #{ctype,jdbcType=VARCHAR},
+        #{ccontent,jdbcType=VARCHAR},
+        #{ctime,jdbcType=TIMESTAMP},
+        #{cispass,jdbcType=INTEGER},
+    </trim>
+</insert>
+<!-- 审查内容总览 -->
+<select id="assessor_list" resultType="booksystem.model.assessorinfo" parameterType="booksystem.model.assessorinfo">
+  	select
+  	*
+  	from assessor
+  	where cispass=0   
+  		 <if test=" title.toString()=='2'.toString()">
+  			and coperator like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='3'.toString()">
+  			and ctable like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='4'.toString()">
+  			and ctype like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='5'.toString()">
+  			and ctime like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		limit #{startPage,jdbcType=INTEGER} , #{pageSize,jdbcType=VARCHAR}
+  </select>
+<!-- 审查删除表内容 -->
+<delete id="assess_detele" parameterType="booksystem.model.assessorinfo"  statementType="STATEMENT">
+    delete from ${ctable}
+    where ${ctable_key}= ${ctable_key_value}
+  </delete>
+<!-- 审查设置表status -->
+<update id="assess_setstatus" parameterType="booksystem.model.assessorinfo"  statementType="STATEMENT">
+ update ${ctable}
+ 	<set >
+       status = 1,
+    </set>
+    where ${ctable_key}= ${ctable_key_value}
+</update>
+<!-- 审查获取表信息-adminlinshi-->
+<select id="assess_selectadminlinshi" resultType="booksystem.model.admininfo" parameterType="booksystem.model.assessorinfo" statementType="STATEMENT">
+select * from ${ctable}
+where ${ctable_key}= ${ctable_key_value}
+</select>
+<!-- 审查获取表信息-departmentlinshi-->
+<select id="assess_selectdepartmentlinshi" resultType="booksystem.model.departmentinfo" parameterType="booksystem.model.assessorinfo" statementType="STATEMENT">
+select * from ${ctable}
+where ${ctable_key}= ${ctable_key_value}
+</select>
+<!-- 审查获取表信息-jueselinshi-->
+<select id="assess_selectjueselinshi" resultType="booksystem.model.jueseinfo" parameterType="booksystem.model.assessorinfo" statementType="STATEMENT">
+select * from ${ctable}
+where ${ctable_key}= ${ctable_key_value}
+</select>
+ <!-- ok -->
+<update  id="assess_ok"  parameterType="booksystem.model.assessorinfo">
+update assessor
+    <set >
+       cispass = #{cispass,jdbcType=INTEGER},
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+</update>
+<!-- 日志插入 -->
+<insert id="record_add" parameterType="booksystem.model.recordinfo">
+	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+	 insert into record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        coperator,
+        ccontent,
+        ctime,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{coperator,jdbcType=VARCHAR},
+        #{ccontent,jdbcType=VARCHAR},
+        #{ctime,jdbcType=TIMESTAMP},
+    </trim>
+</insert>
+<!-- 记录信息总览 -->
+<select id="record_list" resultType="booksystem.model.recordinfo" parameterType="booksystem.model.recordinfo">
+  	select
+  	*
+  	from record
+  	where 1=1    
+  		 <if test=" title.toString()=='2'.toString()">
+  			and id =#{keyword,jdbcType=INTEGER}
+  		</if>
+  		<if test=" title.toString()=='3'.toString()">
+  			and coperator like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		<if test=" title.toString()=='4'.toString()">
+  			and ctime like concat('%',#{keyword,jdbcType=VARCHAR},'%') 
+  		</if>
+  		limit #{startPage,jdbcType=INTEGER} , #{pageSize,jdbcType=VARCHAR}
+  </select>
+</mapper>
